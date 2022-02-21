@@ -1,0 +1,54 @@
+.eqv  
+.data
+A: .word 0x10010000
+B: .word 0x10010020
+C: .word 0x10010040
+.text
+
+
+addi s0,zero,5 #este es el numeo de discos que se utilizara
+lui s1, %hi(A) # la torre A que es la de origen parte alta
+addi s1,s1, %lo(A) # la torre A que es la de origen
+lui s2, %hi(B) # la torre B que es la de origen parte alta
+addi s2,s2, %lo(B) # la torre B que es la de origen 
+lui s3, %hi(C) # la torre C que es la de origen parte alta
+addi s3,s3, %lo(C) # la torre C que es la de origen parte alta
+add a0,zero,s0 # es el argumento que se pasara como numero de discos
+
+main:
+add t0,zero,a0 # se utilizara para saber cuando se ha inicializado la torre origen
+Iniciar_Discos:
+beq  t0, zero, continua #comprueba si ya se inicializo la torre ( cuando ya no haya discos que añadir) si es asi se pasa a la funcion hanoi
+sw t0, 0(s1)#guardo el disco en la torre A
+addi s1,s1,4
+addi t0,t0,-1
+jal zero,Iniciar_Discos
+continua:
+add s1,s1,-1
+
+Hanoi:
+addi sp, sp, -20#depende a cuantos valores le vayamos a hacer push en este caso son 5
+sw ra,0(sp) #hago push del ra para saber a donde saltar
+sw s1,4(sp) # guardo la parte de arriba de la torre A
+sw s1,8(sp) # guardo la parte de arriba de la torre B
+sw s1,12(sp)# guardo la parte de arriba de la torre C
+sw s1,16(sp)# guardo el numero de discos
+
+############# hasta aqui esta bien
+A1:
+bne a0, t1, Hanoi_recursiva #comprueba si N es 1, si no paso a la seccion recursiva
+addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
+jal ra, Hanoi#Llamo Potencia
+addi a1,zero,1 #el valor de F(1) siempre es 1
+jal zero,Return_potencia
+
+
+Hanoi_recursiva:
+addi a0,a0,-1 #se resta uno a n
+jal ra, Hanoi #Llamo Potencia
+mul a1,s3,a1 #multiplico n* por el valor anterior de la potencia
+
+Return_potencia:
+lw ra, 0(sp)#hago pops de los valores del Stack esto nos guiara hacie el salto que queremos
+addi sp, sp, 4 #depende a cuantos valores le vayamos a hacer pop 
+jalr zero, ra, 0 #La linea de retorno de funcion  que ira hacia la potencia recursiva linea 39 o hacia la linea 16 segun si termina o no la recursividad
