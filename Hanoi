@@ -24,31 +24,42 @@ addi s1,s1,4
 addi t0,t0,-1
 jal zero,Iniciar_Discos
 continua:
-add s1,s1,-1
+addi s1,s1,-4
 
 Hanoi:
 addi sp, sp, -20#depende a cuantos valores le vayamos a hacer push en este caso son 5
 sw ra,0(sp) #hago push del ra para saber a donde saltar
 sw s1,4(sp) # guardo la parte de arriba de la torre A
-sw s1,8(sp) # guardo la parte de arriba de la torre B
-sw s1,12(sp)# guardo la parte de arriba de la torre C
-sw s1,16(sp)# guardo el numero de discos
+sw s2,8(sp) # guardo la parte de arriba de la torre B
+sw s3,12(sp)# guardo la parte de arriba de la torre C
+sw a0,16(sp)# guardo el numero de discos
 
 ############# hasta aqui esta bien
 A1:
+addi t1,zero,1
 bne a0, t1, Hanoi_recursiva #comprueba si N es 1, si no paso a la seccion recursiva
-addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
-jal ra, Hanoi#Llamo Potencia
-addi a1,zero,1 #el valor de F(1) siempre es 1
+#sacar disco de origen y lo pongo en destino 
 jal zero,Return_potencia
 
 
 Hanoi_recursiva:
-addi a0,a0,-1 #se resta uno a n
-jal ra, Hanoi #Llamo Potencia
-mul a1,s3,a1 #multiplico n* por el valor anterior de la potencia
+add t2,zero,s2 # se intercambian B Y C para llamar a Hanoi(n-1,o,a,d)
+add s2,zero,s3
+add s3,zero,t2
+addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
+jal ra, Hanoi #Llamo Hanoi
+#sacar disco de origen y lo pongo en destino 
+add t2,zero,s1# se intercambian A Y B para llamar a Hanoi(n-1,a,d,o)
+add s1,zero,s2
+add s1,zero,t2
+addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
+jal ra, Hanoi #Llamo Hanoi
 
 Return_potencia:
-lw ra, 0(sp)#hago pops de los valores del Stack esto nos guiara hacie el salto que queremos
-addi sp, sp, 4 #depende a cuantos valores le vayamos a hacer pop 
+lw ra,0(sp) #hago push del ra para saber a donde saltar
+lw s1,4(sp) # guardo la parte de arriba de la torre A
+lw s2,8(sp) # guardo la parte de arriba de la torre B
+lw s3,12(sp)# guardo la parte de arriba de la torre C
+lw a0,16(sp)# guardo el numero de discos
+addi sp, sp, 20 #depende a cuantos valores le vayamos a hacer pop 
 jalr zero, ra, 0 #La linea de retorno de funcion  que ira hacia la potencia recursiva linea 39 o hacia la linea 16 segun si termina o no la recursividad
