@@ -21,9 +21,12 @@ addi s1,s1,4
 addi t0,t0,-1
 jal zero,Iniciar_Discos
 continua:
-addi s1,s1,-4
+add s1,zero,zero #s1 queda en el valor de la direccion del ultimo disco
+lui s1, %hi(Dir) # la torre A que es la de origen parte alta
+###############
 
 Hanoi:
+addi t1,zero,1
 addi sp, sp, -20#depende a cuantos valores le vayamos a hacer push en este caso son 5
 sw ra,0(sp) #hago push del ra para saber a donde saltar
 sw s1,4(sp) # guardo la parte de arriba de la torre A
@@ -31,33 +34,31 @@ sw s2,8(sp) # guardo la parte de arriba de la torre B
 sw s3,12(sp)# guardo la parte de arriba de la torre C
 sw a0,16(sp)# guardo el numero de discos
 
-############# hasta aqui esta bien
+
 A1:
-addi t1,zero,1
 bne a0, t1, Hanoi_recursiva #comprueba si N es 1, si no paso a la seccion recursiva
-lw t3,0(s1)#sacar disco de origen y lo pongo en destino 
-sw zero,0(s1)
-sw t3,0(s3)
-addi s3,s3,4
-addi s1,s1,-4
+##
+lw t3,0(s1)#sacar disco de origen y lo pongo en destino
+sw zero,0(s1) #se pone en 0 el lugar
+sw t3,0(s3)# se guarda en el destino C
 jal zero,Return_potencia
 
 
 Hanoi_recursiva:
+addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
+addi s1,s1,4
 add t2,zero,s2 # se intercambian B Y C para llamar a Hanoi(n-1,o,a,d)
 add s2,zero,s3
 add s3,zero,t2
-addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
 jal ra, Hanoi #Llamo Hanoi
 lw t3,0(s1)#sacar disco de origen y lo pongo en destino 
 sw zero,0(s1)
 sw t3,0(s3)
-addi s3,s3,4
-addi s1,s1,-4
-add t2,zero,s1# se intercambian A Y B para llamar a Hanoi(n-1,a,d,o)
-add s1,zero,s2
-add s1,zero,t2
 addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
+addi s3,s3,4
+add t2,zero,s1# se intercambian A Y C para llamar a Hanoi(n-1,a,d,o)
+add s1,zero,s2
+add s2,zero,t2
 jal ra, Hanoi #Llamo Hanoi
 
 Return_potencia:
