@@ -36,6 +36,7 @@ A1:
 addi t1,zero,1
 bne a0, t1, Hanoi_recursiva #comprueba si N es 1, si no paso a la seccion recursiva
 lw t3,0(s1)#sacar disco de origen y lo pongo en destino 
+sw zero,0(s1)
 sw t3,0(s3)
 addi s3,s3,4
 addi s1,s1,-4
@@ -49,6 +50,7 @@ add s3,zero,t2
 addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
 jal ra, Hanoi #Llamo Hanoi
 lw t3,0(s1)#sacar disco de origen y lo pongo en destino 
+sw zero,0(s1)
 sw t3,0(s3)
 addi s3,s3,4
 addi s1,s1,-4
