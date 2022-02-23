@@ -14,19 +14,19 @@ add a0,zero,s0 # es el argumento que se pasara como numero de discos
 
 main:
 add t0,zero,a0 # se utilizara para saber cuando se ha inicializado la torre origen
+addi t1,zero,1 # se utilizara para sumar y restar 1
+
 Iniciar_Discos:
-beq  t0, zero, continua #comprueba si ya se inicializo la torre ( cuando ya no haya discos que añadir) si es asi se pasa a la funcion hanoi
 sw t0, 0(s1)#guardo el disco en la torre A
 addi s1,s1,4
 addi t0,t0,-1
-jal zero,Iniciar_Discos
-continua:
-add s1,zero,zero #s1 queda en el valor de la direccion del ultimo disco
+bnez t0,Iniciar_Discos
+add s1,zero,zero #s1 se reinicia
 lui s1, %hi(Dir) # la torre A que es la de origen parte alta
-###############
+jal ra, Hanoi
+jal zero,exit #termina el programa
 
 Hanoi:
-addi t1,zero,1
 addi sp, sp, -20#depende a cuantos valores le vayamos a hacer push en este caso son 5
 sw ra,0(sp) #hago push del ra para saber a donde saltar
 sw s1,4(sp) # guardo la parte de arriba de la torre A
@@ -37,35 +37,54 @@ sw a0,16(sp)# guardo el numero de discos
 
 A1:
 bne a0, t1, Hanoi_recursiva #comprueba si N es 1, si no paso a la seccion recursiva
-##
 lw t3,0(s1)#sacar disco de origen y lo pongo en destino
-sw zero,0(s1) #se pone en 0 el lugar
+sw zero,0(s1) #se pone en 0 el lugar correspondiente al disco que se saco
 sw t3,0(s3)# se guarda en el destino C
-jal zero,Return_potencia
+jal zero,Return_Hanoi
 
 
 Hanoi_recursiva:
-addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
-addi s1,s1,4
-add t2,zero,s2 # se intercambian B Y C para llamar a Hanoi(n-1,o,a,d)
-add s2,zero,s3
-add s3,zero,t2
-jal ra, Hanoi #Llamo Hanoi
+#Se hace la primera parte de (n-1, A, C, B)
+sub a0,a0,t1 #subi no existe, uso el t1 que vale 1 para decrementar a0 que es la n
+addi s1,s1,4 #se pasa a la soguiente posicion de A para referirnos al siguiente disco
+
+add t2,zero,s2 # se guarda la direccion de la torre B para poder cambiar B y C
+add s2,zero,s3 #se cambia la direccion de B a donde esta C
+add s3,zero,t2 #se guarda la direccion que tenia C en B completando el intercambio de direccion de B y C
+
+jal ra, Hanoi #Llamo Hanoi 
+
+# se debe regresar a los valores anteriores al entrar por lo que se intercambia B y C y se suma 1 a n
+#aqui se saca los valores del disco anterior pero no se hace pop porque debiamos hacer pop hasta que terminara el hanoi y eso solo sucede cuando n vale 1 y entra a A1
+addi s1,s1,-4 #se pasa a la soguiente posicion de A para referirnos al disco anterior
+lw s3,12(sp) #se restaura la direccion de la c anterior
+lw s1,4(sp) #se restaura la direccion de la a anterior
+
+
 lw t3,0(s1)#sacar disco de origen y lo pongo en destino 
 sw zero,0(s1)
 sw t3,0(s3)
-addi a0,a0,-1#subi no existe, debemos sumar con un numero negativo. Decremento N
-addi s3,s3,4
-add t2,zero,s1# se intercambian A Y C para llamar a Hanoi(n-1,a,d,o)
-add s1,zero,s2
-add s2,zero,t2
+
+addi s3,s3,4 #se va a la siguiente direccion de C
+
+
+# se intercambian A Y C para llamar a Hanoi(n-1,a,d,o)
+#como para el hanoi anterior ya habiamos restado no hay necesidad de volver a hacerlo
+#porque primero se deveria sumar un disco y despues restarlo 
+
+lw s1,8(sp) #se restaura la direccion de la B anterior para que A quede con el valor anterior de B
+lw s2,4(sp) #se restaura la direccion de la a anterior para que B quede con el valor anterior de A
+
 jal ra, Hanoi #Llamo Hanoi
 
-Return_potencia:
+Return_Hanoi:
+
 lw ra,0(sp) #hago push del ra para saber a donde saltar
 lw s1,4(sp) # guardo la parte de arriba de la torre A
 lw s2,8(sp) # guardo la parte de arriba de la torre B
 lw s3,12(sp)# guardo la parte de arriba de la torre C
 lw a0,16(sp)# guardo el numero de discos
-addi sp, sp, 20 #depende a cuantos valores le vayamos a hacer pop 
+addi sp, sp, 20 #depende a cuantos valores le vayamos a hacer pop
 jalr zero, ra, 0 #La linea de retorno de funcion  que ira hacia la potencia recursiva linea 39 o hacia la linea 16 segun si termina o no la recursividad
+
+exit:
