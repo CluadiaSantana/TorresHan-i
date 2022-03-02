@@ -4,12 +4,12 @@ Dir: .word 0x010010000
 .text
 
 
-addi s0,zero,5 #este es el numeo de discos que se utilizara
+addi s0,zero,3 #este es el numeo de discos que se utilizara
 lui s1, %hi(Dir) # la torre A que es la de origen parte alta
 lui s2, %hi(Dir) # la torre B que es la de origen parte alta
-addi s2,s2,0x20 # la torre B que es la de origen 
+addi s2,s2,0x40 # la torre B que es la de origen 
 lui s3, %hi(Dir) # la torre C que es la de origen parte alta
-addi s3,s3, 0x40 # la torre C que es la de origen parte alta
+addi s3,s3, 0x80 # la torre C que es la de origen parte alta
 add a0,zero,s0 # es el argumento que se pasara como numero de discos
 
 main:
