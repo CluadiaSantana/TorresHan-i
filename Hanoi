@@ -6,10 +6,6 @@ Dir: .word 0x010010000
 
 addi s0,zero,3 #este es el numeo de discos que se utilizara
 lui s1, %hi(Dir) # la torre A que es la de origen parte alta
-lui s2, %hi(Dir) # la torre B que es la de origen parte alta
-addi s2,s2,0x40 # la torre B que es la de origen 
-lui s3, %hi(Dir) # la torre C que es la de origen parte alta
-addi s3,s3, 0x80 # la torre C que es la de origen parte alta
 add a0,zero,s0 # es el argumento que se pasara como numero de discos
 
 main:
@@ -21,8 +17,11 @@ sw t0, 0(s1)#guardo el disco en la torre A
 addi s1,s1,4
 addi t0,t0,-1
 bnez t0,Iniciar_Discos
+add s2,zero,s1 #inicia la torre B donde en la siguiente diereccion que termina la torre A
+add s3,s1,s2 #iniica la torre C, pero la inicia 0x010010000 mas adelante que la torre B
 add s1,zero,zero #s1 se reinicia
 lui s1, %hi(Dir) # la torre A que es la de origen parte alta
+sub s3,s3,s1 # le resta los 0x010010000 a la torre C para que quede exactamente en la siguiente direccion de la torre B si tuviera todos los discos
 jal ra, Hanoi
 jal zero,exit #termina el programa
 
